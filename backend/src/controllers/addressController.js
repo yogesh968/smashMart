@@ -1,16 +1,22 @@
-const prisma = require('../db');
 const { MongoClient, ObjectId } = require('mongodb');
 const getMongoUri = () => process.env.DATABASE_URL;
 
 exports.getAddresses = async (req, res) => {
+    const client = new MongoClient(getMongoUri());
     try {
-        const addresses = await prisma.savedAddress.findMany({
-            where: { userId: req.userData.userId },
-            orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }]
-        });
-        res.json(addresses);
+        await client.connect();
+        const db = client.db();
+        const col = db.collection('SavedAddress');
+        const addresses = await col
+            .find({ userId: new ObjectId(req.userData.userId) })
+            .sort({ isDefault: -1, createdAt: -1 })
+            .toArray();
+        const mapped = addresses.map(a => ({ ...a, id: a._id.toString() }));
+        res.json(mapped);
     } catch {
         res.status(500).json({ error: 'Failed to fetch addresses' });
+    } finally {
+        await client.close();
     }
 };
 

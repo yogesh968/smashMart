@@ -8,10 +8,10 @@ import { getProductImage } from '../utils/racketImages';
 const STEPS = ['Delivery Address', 'Payment', 'Confirmation'];
 
 const PAYMENT_METHODS = [
-    { id: 'cod',        label: 'Cash on Delivery',    icon: '💵', desc: 'Pay when your order arrives' },
-    { id: 'upi',        label: 'UPI',                 icon: '📱', desc: 'Google Pay, PhonePe, Paytm' },
-    { id: 'card',       label: 'Credit / Debit Card', icon: '💳', desc: 'Visa, Mastercard, RuPay' },
-    { id: 'netbanking', label: 'Net Banking',         icon: '🏦', desc: 'All major banks supported' },
+    { id: 'cod',        label: 'Cash on Delivery',    icon: 'COD',  desc: 'Pay at the time of delivery' },
+    { id: 'upi',        label: 'UPI',                 icon: 'UPI',  desc: 'Google Pay · PhonePe · Paytm' },
+    { id: 'card',       label: 'Credit / Debit Card', icon: 'CARD', desc: 'Visa · Mastercard · RuPay' },
+    { id: 'netbanking', label: 'Net Banking',         icon: 'NET',  desc: 'All major Indian banks' },
 ];
 
 const EMPTY_ADDR = { label: 'Home', name: '', phone: '', street: '', city: '', state: '', pincode: '', country: 'India', isDefault: false };
@@ -107,7 +107,7 @@ const StepAddress = ({ addresses, selectedAddressId, showAddForm, addrForm, edit
                                 {addr.isDefault && <span style={{ fontSize: '0.65rem', fontWeight: 800, background: 'rgba(255,255,255,0.05)', color: 'var(--text-dim)', padding: '2px 8px', borderRadius: '4px' }}>DEFAULT</span>}
                             </div>
                             <p style={{ fontSize: '0.85rem', color: 'var(--text-dim)', lineHeight: 1.6 }}>{addr.street}, {addr.city}, {addr.state} - {addr.pincode}</p>
-                            <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '4px' }}>📞 {addr.phone}</p>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '4px' }}>Mob: {addr.phone}</p>
                             <div style={{ display: 'flex', gap: '15px', marginTop: '12px' }} onClick={e => e.stopPropagation()}>
                                 <span onClick={() => onEdit(addr)} style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent)', cursor: 'pointer' }}>Edit</span>
                                 <span onClick={() => onDelete(aid)} style={{ fontSize: '0.75rem', fontWeight: 700, color: '#ff3b3b', cursor: 'pointer' }}>Remove</span>
@@ -146,7 +146,7 @@ const StepPayment = ({ selectedAddr, paymentMethod, placing, finalTotal, onChang
                     <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: `2px solid ${paymentMethod === pm.id ? 'var(--accent)' : 'var(--border)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         {paymentMethod === pm.id && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent)' }} />}
                     </div>
-                    <span style={{ fontSize: '1.4rem' }}>{pm.icon}</span>
+                    <span style={{ fontSize: '0.6rem', fontWeight: 900, letterSpacing: '1px', color: 'var(--accent)', background: 'var(--accent-soft)', padding: '4px 8px', borderRadius: '4px', minWidth: '38px', textAlign: 'center' }}>{pm.icon}</span>
                     <div>
                         <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>{pm.label}</p>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>{pm.desc}</p>
@@ -163,9 +163,11 @@ const StepPayment = ({ selectedAddr, paymentMethod, placing, finalTotal, onChang
 // ─── CONFIRMATION ─────────────────────────────────────────────────────────────
 const StepConfirmation = ({ placedOrder, onTrackOrders, onContinueShopping }) => (
     <div style={{ textAlign: 'center', padding: '40px 0' }}>
-        <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--accent-soft)', border: '2px solid var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 30px', fontSize: '2rem' }}>✓</div>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 900, marginBottom: '10px' }}>ORDER PLACED!</h2>
-        <p style={{ color: 'var(--text-dim)', marginBottom: '30px' }}>Your gear is being prepared for shipment.</p>
+        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 30px' }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', fontWeight: 900, marginBottom: '10px', textTransform: 'uppercase' }}>Order Confirmed</h2>
+        <p style={{ color: 'var(--text-dim)', marginBottom: '30px', fontSize: '0.95rem' }}>Your order has been placed successfully. You will receive a confirmation shortly.</p>
         {placedOrder && (
             <div style={{ background: 'var(--bg-sub)', border: '1px solid var(--border)', borderRadius: '12px', padding: '25px', marginBottom: '30px', textAlign: 'left' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -226,7 +228,12 @@ const OrderSummary = ({ cart, cartTotal, shipping, finalTotal }) => (
                     <span>Total</span><span style={{ color: 'var(--accent)' }}>${finalTotal.toFixed(2)}</span>
                 </div>
             </div>
-            {shipping === 0 && <p style={{ fontSize: '0.7rem', color: 'var(--accent)', fontWeight: 700, marginTop: '10px', textAlign: 'center' }}>🎉 You get FREE shipping!</p>}
+            {shipping === 0 && (
+                <div style={{ marginTop: '15px', padding: '10px 15px', background: 'var(--accent-soft)', border: '1px solid var(--accent)', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '1px' }}>Complimentary Shipping</span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--accent)' }}>APPLIED</span>
+                </div>
+            )}
         </div>
     </aside>
 );
