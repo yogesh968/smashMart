@@ -1,16 +1,21 @@
-const prisma = require('../db');
 const { MongoClient, ObjectId } = require('mongodb');
 
-const getMongoUri = () => process.env.DATABASE_URL || "mongodb://localhost:27017/badminton";
+const getMongoUri = () => process.env.DATABASE_URL;
+const getDbName = () => { try { const p = getMongoUri().split('.mongodb.net/')[1] || ''; return p.split('?')[0] || 'smashmart'; } catch { return 'smashmart'; } };
 
 exports.getOrders = async (req, res) => {
+    const client = new MongoClient(getMongoUri());
     try {
-        const orders = await prisma.order.findMany({
-            where: { userId: req.userData.userId }
-        });
-        res.json(orders);
+        await client.connect();
+        const orders = await client.db(getDbName()).collection('Order')
+            .find({ userId: new ObjectId(req.userData.userId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        res.json(orders.map(o => ({ ...o, id: o._id.toString() })));
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch orders' });
+    } finally {
+        await client.close();
     }
 };
 
@@ -28,7 +33,7 @@ exports.createOrder = async (req, res) => {
             return res.status(400).json({ error: 'Shipping address is required' });
 
         await client.connect();
-        const db = client.db();
+        const db = client.db(getDbName());
         const ordersCollection = db.collection('Order');
         const cartsCollection = db.collection('Cart');
 
@@ -64,8 +69,7 @@ exports.deleteOrder = async (req, res) => {
         }
 
         await client.connect();
-        const db = client.db();
-        const ordersCollection = db.collection('Order');
+        const ordersCollection = client.db(getDbName()).collection('Order');
 
         const order = await ordersCollection.findOne({
             _id: new ObjectId(id),

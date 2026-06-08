@@ -1,16 +1,19 @@
-const prisma = require('../db');
 const { MongoClient, ObjectId } = require('mongodb');
 
-const getMongoUri = () => process.env.DATABASE_URL || "mongodb://localhost:27017/badminton";
+const getMongoUri = () => process.env.DATABASE_URL;
+const getDbName = () => { try { const p = getMongoUri().split('.mongodb.net/')[1] || ''; return p.split('?')[0] || 'smashmart'; } catch { return 'smashmart'; } };
 
 exports.getCart = async (req, res) => {
+    const client = new MongoClient(getMongoUri());
     try {
-        const cart = await prisma.cart.findUnique({
-            where: { userId: req.userData.userId }
-        });
+        await client.connect();
+        const cart = await client.db(getDbName()).collection('Cart')
+            .findOne({ userId: new ObjectId(req.userData.userId) });
         res.json(cart || { items: [] });
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch cart' });
+    } finally {
+        await client.close();
     }
 };
 
@@ -25,8 +28,7 @@ exports.addToCart = async (req, res) => {
         }
 
         await client.connect();
-        const db = client.db();
-        const cartsCollection = db.collection('Cart');
+        const cartsCollection = client.db(getDbName()).collection('Cart');
 
         let cart = await cartsCollection.findOne({ userId: new ObjectId(userId) });
 
@@ -69,8 +71,7 @@ exports.removeFromCart = async (req, res) => {
         }
 
         await client.connect();
-        const db = client.db();
-        const cartsCollection = db.collection('Cart');
+        const cartsCollection = client.db(getDbName()).collection('Cart');
 
         let cart = await cartsCollection.findOne({ userId: new ObjectId(userId) });
         if (!cart) {
