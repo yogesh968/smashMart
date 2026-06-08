@@ -7,8 +7,10 @@ const getMongoUri = () => process.env.DATABASE_URL;
 const getDbName = () => { try { const p = getMongoUri().split('.mongodb.net/')[1] || ''; return p.split('?')[0] || 'smashmart'; } catch { return 'smashmart'; } };
 const getUsers = async (client) => client.db(getDbName()).collection('User');
 const signToken = (userId) => jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '24h' });
-// create lazily so GOOGLE_CLIENT_ID is read after dotenv loads
-const getGoogleClient = () => new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const getGoogleClient = () => new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET
+);
 
 exports.signup = async (req, res) => {
     const client = new MongoClient(getMongoUri());
