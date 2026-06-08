@@ -17,16 +17,15 @@ exports.getOrders = async (req, res) => {
 exports.createOrder = async (req, res) => {
     const client = new MongoClient(getMongoUri());
     try {
-        const { items, total } = req.body;
+        const { items, total, shippingAddress, paymentMethod } = req.body;
         const userId = req.userData.userId;
 
-        if (!items || !Array.isArray(items) || items.length === 0) {
+        if (!items || !Array.isArray(items) || items.length === 0)
             return res.status(400).json({ error: 'Order items are required' });
-        }
-
-        if (!total || total <= 0) {
+        if (!total || total <= 0)
             return res.status(400).json({ error: 'Valid order total is required' });
-        }
+        if (!shippingAddress || !shippingAddress.street)
+            return res.status(400).json({ error: 'Shipping address is required' });
 
         await client.connect();
         const db = client.db();
@@ -38,20 +37,16 @@ exports.createOrder = async (req, res) => {
             items,
             total,
             status: 'pending',
+            shippingAddress,
+            paymentMethod: paymentMethod || 'cod',
             createdAt: new Date()
         };
 
         const result = await ordersCollection.insertOne(newOrder);
-
-
-        try {
-            await cartsCollection.deleteOne({ userId: new ObjectId(userId) });
-        } catch (e) {
-
-        }
+        try { await cartsCollection.deleteOne({ userId: new ObjectId(userId) }); } catch {}
 
         res.status(201).json({ id: result.insertedId, ...newOrder, userId });
-    } catch (error) {
+    } catch {
         res.status(500).json({ error: 'Failed to create order' });
     } finally {
         await client.close();

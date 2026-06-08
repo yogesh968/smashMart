@@ -19,6 +19,7 @@ const categoryRoutes = require('./routes/categories');
 const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/orders');
 const profileRoutes = require('./routes/profile');
+const addressRoutes = require('./routes/addresses');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -26,6 +27,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/addresses', addressRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

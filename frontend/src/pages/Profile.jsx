@@ -18,8 +18,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [form, setForm] = useState({
-        name: '', phone: '', dateOfBirth: '', gender: '', playLevel: '',
-        address: { street: '', city: '', state: '', pincode: '', country: '' }
+        name: '', phone: '', dateOfBirth: '', gender: '', playLevel: ''
     });
 
     useEffect(() => {
@@ -31,14 +30,7 @@ const Profile = () => {
                     phone: data.phone || '',
                     dateOfBirth: data.dateOfBirth || '',
                     gender: data.gender || '',
-                    playLevel: data.playLevel || '',
-                    address: {
-                        street: data.address?.street || '',
-                        city: data.address?.city || '',
-                        state: data.address?.state || '',
-                        pincode: data.address?.pincode || '',
-                        country: data.address?.country || ''
-                    }
+                    playLevel: data.playLevel || ''
                 });
             })
             .catch(() => showToast('Failed to load profile', 'error'))
@@ -46,7 +38,6 @@ const Profile = () => {
     }, [user, navigate]);
 
     const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
-    const setAddr = (key, val) => setForm(f => ({ ...f, address: { ...f.address, [key]: val } }));
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -109,28 +100,6 @@ const Profile = () => {
                                 ))}
                             </div>
                         )}
-                    </div>
-
-                    {/* DELIVERY ADDRESS */}
-                    <div style={{ marginBottom: '50px' }}>
-                        <h3 style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '25px', paddingBottom: '15px', borderBottom: '1px solid var(--border)' }}>Delivery Address</h3>
-                        {field('Street Address',
-                            <input className="input-field" type="text" placeholder="123 Court Lane, Apt 4B" value={form.address.street} onChange={e => setAddr('street', e.target.value)} />
-                        )}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                            {field('City',
-                                <input className="input-field" type="text" placeholder="Mumbai" value={form.address.city} onChange={e => setAddr('city', e.target.value)} />
-                            )}
-                            {field('State',
-                                <input className="input-field" type="text" placeholder="Maharashtra" value={form.address.state} onChange={e => setAddr('state', e.target.value)} />
-                            )}
-                            {field('Pincode',
-                                <input className="input-field" type="text" placeholder="400001" value={form.address.pincode} onChange={e => setAddr('pincode', e.target.value)} />
-                            )}
-                            {field('Country',
-                                <input className="input-field" type="text" placeholder="India" value={form.address.country} onChange={e => setAddr('country', e.target.value)} />
-                            )}
-                        </div>
                     </div>
 
                     {/* ACCOUNT INFO (read-only) */}

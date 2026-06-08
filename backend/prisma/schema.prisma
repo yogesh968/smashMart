@@ -18,18 +18,26 @@ model User {
   dateOfBirth String?
   gender      String?
   playLevel   String?
-  address     Address?
+  addresses   SavedAddress[]
   cart        Cart?
   orders      Order[]
   createdAt   DateTime  @default(now())
 }
 
-type Address {
-  street  String?
-  city    String?
-  state   String?
-  pincode String?
-  country String?
+model SavedAddress {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  label     String   @default("Home")
+  name      String
+  phone     String
+  street    String
+  city      String
+  state     String
+  pincode   String
+  country   String   @default("India")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 model Category {
@@ -64,13 +72,15 @@ type CartItem {
 }
 
 model Order {
-  id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String      @db.ObjectId
-  user       User        @relation(fields: [userId], references: [id])
-  items      OrderItem[]
-  total      Float
-  status     String      @default("pending")
-  createdAt  DateTime    @default(now())
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String      @db.ObjectId
+  user            User        @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  total           Float
+  status          String      @default("pending")
+  shippingAddress ShippingAddress
+  paymentMethod   String      @default("cod")
+  createdAt       DateTime    @default(now())
 }
 
 type OrderItem {
@@ -79,4 +89,14 @@ type OrderItem {
   price     Float
   quantity  Int
   image     String?
+}
+
+type ShippingAddress {
+  name    String
+  phone   String
+  street  String
+  city    String
+  state   String
+  pincode String
+  country String
 }

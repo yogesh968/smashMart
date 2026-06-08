@@ -1,64 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { useUIContext } from '../context/UIContext';
-import { fetchData } from '../api';
 import { getProductImage } from '../utils/racketImages';
 
 const Cart = () => {
     const { cart, removeFromCart, updateQuantity, cartTotal, user, clearCart, logoutUser } = useAppContext();
-    const [isProcessing, setIsProcessing] = useState(false);
     const navigate = useNavigate();
+    const { showToast } = useUIContext();
 
-    const { showModal, showToast } = useUIContext();
-
-    const handleCheckout = async () => {
+    const handleCheckout = () => {
         if (!user) {
             showToast('Please sign in to complete your order.', 'info');
             navigate('/login');
             return;
         }
-
-        setIsProcessing(true);
-        try {
-            const orderData = {
-                items: cart.map(item => ({
-                    productId: item.id || item._id,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    image: item.image
-                })),
-                total: cartTotal > 150 ? cartTotal : cartTotal + 15
-            };
-
-            await fetchData('/orders', {
-                method: 'POST',
-                body: JSON.stringify(orderData)
-            });
-
-            clearCart();
-
-            showModal({
-                title: 'Order Confirmed',
-                message: 'Thank you for your purchase! Your gear is being prepared for shipment.',
-                type: 'success',
-                onConfirm: () => navigate('/')
-            });
-
-        } catch (err) {
-            const msg = err.message || '';
-            const isTokenExpired = msg.toLowerCase().includes('token expired') || msg.toLowerCase().includes('invalid token') || msg.toLowerCase().includes('expired');
-            if (isTokenExpired) {
-                logoutUser();
-                showToast('Your session expired. Please sign in again to complete your order.', 'error');
-                navigate('/login');
-            } else {
-                showToast('Failed to process order: ' + msg, 'error');
-            }
-        } finally {
-            setIsProcessing(false);
-        }
+        navigate('/checkout');
     };
 
     if (cart.length === 0) {
@@ -126,10 +83,9 @@ const Cart = () => {
                         <button
                             onClick={handleCheckout}
                             className="btn btn-primary"
-                            style={{ width: '100%', opacity: isProcessing ? 0.7 : 1 }}
-                            disabled={isProcessing}
+                            style={{ width: '100%' }}
                         >
-                            {isProcessing ? 'SCANNING TERMINAL...' : 'Checkout Now'}
+                            Checkout Now
                         </button>
                         <div style={{ marginTop: '30px', textAlign: 'center', display: 'flex', justifyContent: 'center', gap: '15px' }}>
                             <img src="https://img.icons8.com/color/48/000000/visa.png" width="32" style={{ cursor: 'pointer', transition: 'transform 0.3s ease' }} onMouseOver={(e) => e.target.style.transform = 'scale(1.15)'} onMouseOut={(e) => e.target.style.transform = 'scale(1)'} alt="visa" />

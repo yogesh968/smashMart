@@ -14,6 +14,7 @@ import Cart from './pages/Cart';
 import Contact from './pages/Contact';
 import Orders from './pages/Orders';
 import Profile from './pages/Profile';
+import Checkout from './pages/Checkout';
 import './styles/main.css';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -38,6 +39,7 @@ function App() {
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/orders" element={<Orders />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/checkout" element={<Checkout />} />
                   </Routes>
                 </main>
                 <Footer />
