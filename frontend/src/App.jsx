@@ -13,6 +13,7 @@ import Signup from './pages/Signup';
 import Cart from './pages/Cart';
 import Contact from './pages/Contact';
 import Orders from './pages/Orders';
+import Profile from './pages/Profile';
 import './styles/main.css';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -36,6 +37,7 @@ function App() {
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/orders" element={<Orders />} />
+                    <Route path="/profile" element={<Profile />} />
                   </Routes>
                 </main>
                 <Footer />

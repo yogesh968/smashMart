@@ -35,7 +35,7 @@ const Header = () => {
                     <div className="desktop-user">
                         {user ? (
                             <div className="user-info">
-                                <span className="user-name">{user.name.split(' ')[0]}</span>
+                                <Link to="/profile" className="user-name" style={{ textDecoration: 'none' }}>{user.name.split(' ')[0]}</Link>
                                 <button onClick={logoutUser} className="btn-outline logout-btn">Logout</button>
                             </div>
                         ) : (

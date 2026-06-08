@@ -8,15 +8,28 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
-  password  String?
-  googleId  String?  @unique
-  name      String
-  role      String   @default("user")
-  cart      Cart?
-  orders    Order[]
-  createdAt DateTime @default(now())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  email       String    @unique
+  password    String?
+  googleId    String?   @unique
+  name        String
+  role        String    @default("user")
+  phone       String?
+  dateOfBirth String?
+  gender      String?
+  playLevel   String?
+  address     Address?
+  cart        Cart?
+  orders      Order[]
+  createdAt   DateTime  @default(now())
+}
+
+type Address {
+  street  String?
+  city    String?
+  state   String?
+  pincode String?
+  country String?
 }
 
 model Category {
