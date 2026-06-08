@@ -3,13 +3,12 @@ const jwt = require('jsonwebtoken');
 const { MongoClient, ObjectId } = require('mongodb');
 const { OAuth2Client } = require('google-auth-library');
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const getMongoUri = () => process.env.DATABASE_URL;
 const getDbName = () => { try { const p = getMongoUri().split('.mongodb.net/')[1] || ''; return p.split('?')[0] || 'smashmart'; } catch { return 'smashmart'; } };
-
 const getUsers = async (client) => client.db(getDbName()).collection('User');
-
 const signToken = (userId) => jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '24h' });
+// create lazily so GOOGLE_CLIENT_ID is read after dotenv loads
+const getGoogleClient = () => new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 exports.signup = async (req, res) => {
     const client = new MongoClient(getMongoUri());
@@ -70,7 +69,12 @@ exports.googleLogin = async (req, res) => {
     const client = new MongoClient(getMongoUri());
     try {
         const { credential } = req.body;
-        const ticket = await googleClient.verifyIdToken({
+
+        if (!process.env.GOOGLE_CLIENT_ID) {
+            return res.status(500).json({ error: 'Google login is not configured on this server' });
+        }
+
+        const ticket = await getGoogleClient().verifyIdToken({
             idToken: credential,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
